@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Flight Booking System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12 fade-in-up">
+            <div class="glass-card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="gradient-text fw-bold">
+                                <i class="fas fa-tachometer-alt me-2"></i> Admin Dashboard
+                            </h3>
+                            <p class="mb-0 text-white-50">Manage flights, bookings, and system operations</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{% url 'add_flight' %}" class="btn btn-success btn-lg">
+                                <i class="fas fa-plus me-2"></i> Add New Flight
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 fade-in-up">
+            <div class="glass-card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                             style="width: 60px; height: 60px; background: var(--primary-gradient);">
+                            <i class="fas fa-plane fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white fw-bold">{{ total_flights }}</h4>
+                    <p class="text-white-50">Total Flights</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="glass-card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                             style="width: 60px; height: 60px; background: var(--success-gradient);">
+                            <i class="fas fa-ticket-alt fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white fw-bold">{{ total_bookings }}</h4>
+                    <p class="text-white-50">Total Bookings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="glass-card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                             style="width: 60px; height: 60px; background: var(--accent-gradient);">
+                            <i class="fas fa-users fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white fw-bold">{{ total_passengers }}</h4>
+                    <p class="text-white-50">Passengers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="glass-card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                             style="width: 60px; height: 60px; background: var(--warning-gradient);">
+                            <i class="fas fa-dollar-sign fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white fw-bold">${{ total_revenue|floatformat:0 }}</h4>
+                    <p class="text-white-50">Total Revenue</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Sections -->
+    <div class="row">
+        <!-- Flight Management -->
+        <div class="col-lg-6 mb-4 fade-in-up">
+            <div class="glass-card">
+                <div class="card-header d-flex justify-content-between align-items-center border-0 bg-transparent">
+                    <h5 class="mb-0 gradient-text fw-bold">
+                        <i class="fas fa-plane me-2"></i> Flight Management
+                    </h5>
+                    <a href="{% url 'manage_flights' %}" class="btn btn-outline-info btn-sm">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="{% url 'add_flight' %}" class="btn btn-success w-100">
+                                <i class="fas fa-plus"></i><br>Add Flight
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'manage_flights' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-edit"></i><br>Manage Flights
+                            </a>
+                        </div>
+                    </div>
+                    
+                    {% if recent_flights %}
+                        <h6 class="mt-4 mb-3 text-white fw-bold">Recent Flights</h6>
+                        {% for flight in recent_flights %}
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background: rgba(255,255,255,0.05);">
+                                <div>
+                                    <strong class="text-white">{{ flight.flight_number }}</strong> - <span class="text-info">{{ flight.airline }}</span>
+                                    <br><small class="text-white-50">{{ flight.source }} → {{ flight.destination }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-white-50">{{ flight.available_seats }}/{{ flight.total_seats }} seats</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Management -->
+        <div class="col-lg-6 mb-4 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="glass-card">
+                <div class="card-header d-flex justify-content-between align-items-center border-0 bg-transparent">
+                    <h5 class="mb-0 gradient-text fw-bold">
+                        <i class="fas fa-ticket-alt me-2"></i> Booking Management
+                    </h5>
+                    <a href="{% url 'manage_bookings' %}" class="btn btn-outline-info btn-sm">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="{% url 'manage_bookings' %}" class="btn btn-info w-100">
+                                <i class="fas fa-list"></i><br>View Bookings
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'export_bookings_csv' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-download"></i><br>Export CSV
+                            </a>
+                        </div>
+                    </div>
+                    
+                    {% if recent_bookings %}
+                        <h6 class="mt-4 mb-3 text-white fw-bold">Recent Bookings</h6>
+                        {% for booking in recent_bookings %}
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background: rgba(255,255,255,0.05);">
+                                <div>
+                                    <strong class="text-white">{{ booking.booking_reference }}</strong>
+                                    <br><small class="text-white-50">{{ booking.user.username }} - {{ booking.flight.flight_number }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-{% if booking.status == 'confirmed' %}success{% else %}warning{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="row">
+        <div class="col-12 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="glass-card">
+                <div class="card-header border-0 bg-transparent">
+                    <h5 class="mb-0 gradient-text fw-bold">
+                        <i class="fas fa-info-circle me-2"></i> System Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-white fw-bold">Quick Actions</h6>
+                            <div class="list-group list-group-flush">
+                                <a href="/admin/" class="list-group-item list-group-item-action bg-transparent border-0 text-white-50 hover-glass">
+                                    <i class="fas fa-cog me-2"></i> Django Admin Panel
+                                </a>
+                                <a href="{% url 'manage_flights' %}" class="list-group-item list-group-item-action bg-transparent border-0 text-white-50 hover-glass">
+                                    <i class="fas fa-plane me-2"></i> Manage All Flights
+                                </a>
+                                <a href="{% url 'manage_bookings' %}" class="list-group-item list-group-item-action bg-transparent border-0 text-white-50 hover-glass">
+                                    <i class="fas fa-ticket-alt me-2"></i> Manage All Bookings
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-white fw-bold">System Status</h6>
+                            <ul class="list-unstyled">
+                                <li class="text-white-50 mb-2"><i class="fas fa-check text-success me-2"></i> Database: Connected</li>
+                                <li class="text-white-50 mb-2"><i class="fas fa-check text-success me-2"></i> Flight System: Online</li>
+                                <li class="text-white-50 mb-2"><i class="fas fa-check text-success me-2"></i> Booking System: Online</li>
+                                <li class="text-white-50 mb-2"><i class="fas fa-check text-success me-2"></i> Payment System: Ready</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

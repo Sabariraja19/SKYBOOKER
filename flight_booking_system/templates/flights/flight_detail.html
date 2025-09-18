@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ flight.flight_number }} - Flight Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Flight Details -->
+        <div class="col-lg-8 fade-in-up">
+            <div class="glass-card">
+                <div class="card-header border-0 bg-transparent">
+                    <h4 class="mb-0 gradient-text fw-bold">
+                        <i class="fas fa-plane me-2"></i> {{ flight.airline }} - {{ flight.flight_number }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-white fw-bold">Departure</h5>
+                            <p class="mb-1 text-white"><strong>{{ flight.source }}</strong></p>
+                            <p class="mb-1 text-white-50">{{ flight.departure_time|date:"F d, Y" }}</p>
+                            <p class="text-info"><strong>{{ flight.departure_time|time:"H:i" }}</strong></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-white fw-bold">Arrival</h5>
+                            <p class="mb-1 text-white"><strong>{{ flight.destination }}</strong></p>
+                            <p class="mb-1 text-white-50">{{ flight.arrival_time|date:"F d, Y" }}</p>
+                            <p class="text-info"><strong>{{ flight.arrival_time|time:"H:i" }}</strong></p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <h6 class="text-white fw-bold">Duration</h6>
+                            <p class="text-white-50">{{ flight.get_duration }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-white fw-bold">Available Seats</h6>
+                            <p class="text-white-50">{{ flight.available_seats }} of {{ flight.total_seats }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-white fw-bold">Price per Seat</h6>
+                            <p class="text-info"><strong>${{ flight.price }}</strong></p>
+                        </div>
+                    </div>
+                    
+                    {% if flight.description %}
+                        <div class="mb-4">
+                            <h6 class="text-white fw-bold">Flight Information</h6>
+                            <p class="text-white-50">{{ flight.description }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Section -->
+        <div class="col-lg-4 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="glass-card">
+                <div class="card-header border-0 bg-transparent">
+                    <h5 class="mb-0 gradient-text fw-bold">
+                        <i class="fas fa-ticket-alt me-2"></i> Book This Flight
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        {% if flight.is_available %}
+                            <div class="mb-3">
+                                <h4 class="text-info">${{ flight.price }}</h4>
+                                <small class="text-white-50">per person</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i> 
+                                    {{ flight.available_seats }} seats available
+                                </small>
+                            </div>
+                            
+                            <a href="{% url 'book_flight' flight.id %}" class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-ticket-alt me-2"></i> Book Now
+                            </a>
+                        {% else %}
+                            <div class="text-center">
+                                <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                                <h6 class="text-white fw-bold">Flight Fully Booked</h6>
+                                <p class="text-white-50">This flight is no longer available for booking.</p>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center">
+                            <i class="fas fa-user fa-3x text-white-50 mb-3"></i>
+                            <h6 class="text-white fw-bold">Login Required</h6>
+                            <p class="text-white-50">Please login to book this flight.</p>
+                            <a href="{% url 'login' %}" class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-sign-in-alt me-2"></i> Login
+                            </a>
+                            <a href="{% url 'signup' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-user-plus me-2"></i> Sign Up
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Additional Information -->
+            <div class="glass-card mt-3 fade-in-up" style="animation-delay: 0.2s;">
+                <div class="card-body">
+                    <h6 class="text-white fw-bold"><i class="fas fa-info-circle me-2"></i> Booking Information</h6>
+                    <ul class="list-unstyled small">
+                        <li class="text-white-50 mb-2"><i class="fas fa-check text-success me-2"></i> Free cancellation up to 24 hours</li>
+                        <li class="text-white-50 mb-2"><i class="fas fa-check text-success me-2"></i> Instant booking confirmation</li>
+                        <li class="text-white-50 mb-2"><i class="fas fa-check text-success me-2"></i> 24/7 customer support</li>
+                        <li class="text-white-50 mb-2"><i class="fas fa-check text-success me-2"></i> Secure payment processing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12 fade-in-up" style="animation-delay: 0.3s;">
+            <a href="{% url 'flight_list' %}" class="btn btn-outline-info">
+                <i class="fas fa-arrow-left me-2"></i> Back to Search Results
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

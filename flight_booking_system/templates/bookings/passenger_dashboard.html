@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}My Dashboard - Flight Booking System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12 fade-in-up">
+            <div class="glass-card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="gradient-text fw-bold">
+                                <i class="fas fa-user me-2"></i> Welcome, {{ user.get_full_name }}!
+                            </h3>
+                            <p class="mb-0 text-white-50">Manage your flight bookings and account information</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{% url 'flight_list' %}" class="btn btn-info btn-lg">
+                                <i class="fas fa-search me-2"></i> Search Flights
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4 fade-in-up">
+            <div class="glass-card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                             style="width: 60px; height: 60px; background: var(--primary-gradient);">
+                            <i class="fas fa-ticket-alt fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white fw-bold">{{ bookings|length }}</h4>
+                    <p class="text-white-50">Total Bookings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="glass-card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                             style="width: 60px; height: 60px; background: var(--success-gradient);">
+                            <i class="fas fa-check-circle fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white fw-bold">{{ bookings|length }}</h4>
+                    <p class="text-white-50">Confirmed Trips</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="glass-card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                             style="width: 60px; height: 60px; background: var(--accent-gradient);">
+                            <i class="fas fa-plane fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white fw-bold">0</h4>
+                    <p class="text-white-50">Upcoming Flights</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Section -->
+    <div class="row">
+        <div class="col-12 fade-in-up">
+            <div class="glass-card">
+                <div class="card-header d-flex justify-content-between align-items-center border-0 bg-transparent">
+                    <h5 class="mb-0 gradient-text fw-bold">
+                        <i class="fas fa-list me-2"></i> My Bookings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if bookings %}
+                        {% for booking in bookings %}
+                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: {{ forloop.counter0|floatformat:1 }}s;">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-2">
+                                            <h6 class="mb-1 text-info fw-bold">{{ booking.flight.airline }}</h6>
+                                            <small class="text-white-50">{{ booking.flight.flight_number }}</small>
+                                        </div>
+                                        
+                                        <div class="col-md-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="text-center">
+                                                    <h6 class="mb-0 text-white fw-bold">{{ booking.flight.departure_time|time:"H:i" }}</h6>
+                                                    <small class="text-white-50">{{ booking.flight.source }}</small>
+                                                </div>
+                                                <div class="mx-3">
+                                                    <i class="fas fa-plane text-info"></i>
+                                                </div>
+                                                <div class="text-center">
+                                                    <h6 class="mb-0 text-white fw-bold">{{ booking.flight.arrival_time|time:"H:i" }}</h6>
+                                                    <small class="text-white-50">{{ booking.flight.destination }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-2">
+                                            <small class="text-white-50">Seats</small>
+                                            <div class="fw-bold text-white">{{ booking.seats_booked }}</div>
+                                        </div>
+                                        
+                                        <div class="col-md-2">
+                                            <small class="text-white-50">Total Amount</small>
+                                            <div class="fw-bold text-success">${{ booking.total_amount }}</div>
+                                        </div>
+                                        
+                                        <div class="col-md-2">
+                                            <span class="badge bg-{% if booking.status == 'confirmed' %}success{% elif booking.status == 'cancelled' %}danger{% else %}warning{% endif %}">
+                                                {{ booking.get_status_display }}
+                                            </span>
+                                            <div class="small text-white-50">{{ booking.booking_reference }}</div>
+                                        </div>
+                                        
+                                        <div class="col-md-1">
+                                            <div class="dropdown">
+                                                <button class="btn btn-outline-info btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-dark">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'booking_detail' booking.id %}">
+                                                            <i class="fas fa-eye me-2"></i> View Details
+                                                        </a>
+                                                    </li>
+                                                    {% if booking.status == 'confirmed' %}
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="{% url 'cancel_booking' booking.id %}">
+                                                                <i class="fas fa-times me-2"></i> Cancel Booking
+                                                            </a>
+                                                        </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-ticket-alt fa-3x text-white-50 mb-3"></i>
+                            <h4 class="text-white">No Bookings Yet</h4>
+                            <p class="text-white-50">Start planning your next trip!</p>
+                            <a href="{% url 'flight_list' %}" class="btn btn-info btn-lg">
+                                <i class="fas fa-search me-2"></i> Search Flights
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

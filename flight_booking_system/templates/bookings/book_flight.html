@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Flight - {{ flight.flight_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Flight Summary -->
+        <div class="col-lg-8 fade-in-up">
+            <div class="glass-card">
+                <div class="card-header border-0 bg-transparent">
+                    <h4 class="mb-0 gradient-text fw-bold">
+                        <i class="fas fa-plane me-2"></i> Flight Summary
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-white">{{ flight.airline }}</h5>
+                            <p class="text-white-50">{{ flight.flight_number }}</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h5 class="text-info">${{ flight.price }}</h5>
+                            <p class="text-white-50">per person</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-white fw-bold">Departure</h6>
+                            <p class="mb-1 text-white"><strong>{{ flight.source }}</strong></p>
+                            <p class="mb-0 text-white-50">{{ flight.departure_time|date:"F d, Y" }} at {{ flight.departure_time|time:"H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-white fw-bold">Arrival</h6>
+                            <p class="mb-1 text-white"><strong>{{ flight.destination }}</strong></p>
+                            <p class="mb-0 text-white-50">{{ flight.arrival_time|date:"F d, Y" }} at {{ flight.arrival_time|time:"H:i" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-white-50">Duration: {{ flight.get_duration }}</small>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-white-50">Available Seats: {{ flight.available_seats }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Form -->
+        <div class="col-lg-4 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="glass-card">
+                <div class="card-header border-0 bg-transparent">
+                    <h5 class="mb-0 gradient-text fw-bold">
+                        <i class="fas fa-ticket-alt me-2"></i> Book Your Seats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.seats_booked.id_for_label }}" class="form-label text-white fw-bold">
+                                Number of Seats
+                            </label>
+                            {{ form.seats_booked }}
+                            {% if form.seats_booked.help_text %}
+                                <div class="form-text text-white-50">{{ form.seats_booked.help_text }}</div>
+                            {% endif %}
+                            {% if form.seats_booked.errors %}
+                                <div class="text-danger small">{{ form.seats_booked.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="glass-card-inner">
+                                <div class="card-body">
+                                    <h6 class="text-white fw-bold">Passenger Information</h6>
+                                    <p class="mb-1 text-white"><strong>{{ user.get_full_name }}</strong></p>
+                                    <p class="mb-1 text-white-50">{{ user.email }}</p>
+                                    <p class="mb-0 text-white-50">{{ user.phone_number }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="glass-card-inner">
+                                <div class="card-body">
+                                    <h6 class="text-white fw-bold">Total Cost</h6>
+                                    <p class="mb-0">
+                                        <span id="total-cost" class="text-info fs-5 fw-bold">${{ flight.price }}</span>
+                                        <small class="text-white-50">(for <span id="seat-count">1</span> seat)</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">
+                            <i class="fas fa-credit-card me-2"></i> Confirm Booking
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="glass-card mt-3">
+                <div class="card-body">
+                    <h6 class="text-white fw-bold"><i class="fas fa-shield-alt me-2"></i> Booking Protection</h6>
+                    <ul class="list-unstyled small">
+                        <li class="text-white-50 mb-1"><i class="fas fa-check text-success me-2"></i> Secure payment processing</li>
+                        <li class="text-white-50 mb-1"><i class="fas fa-check text-success me-2"></i> Instant confirmation</li>
+                        <li class="text-white-50 mb-1"><i class="fas fa-check text-success me-2"></i> 24/7 customer support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{% url 'flight_detail' flight.id %}" class="btn btn-outline-info">
+                <i class="fas fa-arrow-left me-2"></i> Back to Flight Details
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const seatsInput = document.getElementById('{{ form.seats_booked.id_for_label }}');
+    const totalCostElement = document.getElementById('total-cost');
+    const seatCountElement = document.getElementById('seat-count');
+    const pricePerSeat = {{ flight.price }};
+    
+    seatsInput.addEventListener('input', function() {
+        const seats = parseInt(this.value) || 1;
+        const totalCost = seats * pricePerSeat;
+        totalCostElement.textContent = '$' + totalCost;
+        seatCountElement.textContent = seats;
+    });
+});
+</script>
+{% endblock %}
